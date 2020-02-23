@@ -116,6 +116,16 @@ public interface GrammarListener extends ParseTreeListener {
 	 */
 	void exitVarAssign(GrammarParser.VarAssignContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GrammarParser#varForAssign}.
+	 * @param ctx the parse tree
+	 */
+	void enterVarForAssign(GrammarParser.VarForAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#varForAssign}.
+	 * @param ctx the parse tree
+	 */
+	void exitVarForAssign(GrammarParser.VarForAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link GrammarParser#readLn}.
 	 * @param ctx the parse tree
 	 */
@@ -159,6 +169,66 @@ public interface GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStrLine(GrammarParser.StrLineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#whileLoop}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhileLoop(GrammarParser.WhileLoopContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#whileLoop}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhileLoop(GrammarParser.WhileLoopContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#forLoop}.
+	 * @param ctx the parse tree
+	 */
+	void enterForLoop(GrammarParser.ForLoopContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#forLoop}.
+	 * @param ctx the parse tree
+	 */
+	void exitForLoop(GrammarParser.ForLoopContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#loopBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopBlock(GrammarParser.LoopBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#loopBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopBlock(GrammarParser.LoopBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#loopStatements}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopStatements(GrammarParser.LoopStatementsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#loopStatements}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopStatements(GrammarParser.LoopStatementsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#loopStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopStatement(GrammarParser.LoopStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#loopStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopStatement(GrammarParser.LoopStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link GrammarParser#eval_break}.
+	 * @param ctx the parse tree
+	 */
+	void enterEval_break(GrammarParser.Eval_breakContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarParser#eval_break}.
+	 * @param ctx the parse tree
+	 */
+	void exitEval_break(GrammarParser.Eval_breakContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link GrammarParser#ifStatement}.
 	 * @param ctx the parse tree

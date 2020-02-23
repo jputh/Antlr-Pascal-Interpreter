@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map;
 import java.lang.Math;
 import java.util.Scanner;
 import java.util.Stack;
@@ -9,12 +10,13 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
     Scanner io = new Scanner(System.in);
     private HashMap<String, Value> globalMem = new HashMap<String, Value>();
-    private Stack<HashMap<String, Value>> scope = new Stack<HashMap<String, Value>>();
+    private Stack<HashMap<String, Value>> scopes = new Stack<HashMap<String, Value>>();
 
     public static final float SMALL_VALUE = 0.0000001f;
 
     @Override 
     public Value visitStart(GrammarParser.StartContext ctx) {
+        scopes.push(globalMem);
         System.out.println(ctx.program());
         return visitChildren(ctx); 
     }
@@ -27,7 +29,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         String id = ctx.ID().getText();
         Value value = this.visit(ctx.expr());
 
-        return globalMem.put(id, value);
+        return scopes.peek().put(id, value);
     }
 	
     @Override 
@@ -44,7 +46,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
             default:
                 value = null;
         }
-        return globalMem.put(id, value); 
+        return scopes.peek().put(id, value); 
     }
 
 
@@ -54,11 +56,23 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         String id = ctx.ID().getText();
         Value value = this.visit(ctx.expr());
 
-        globalMem.put(id, value);
-        System.out.println("In table: " + globalMem);
+        scopes.peek().put(id, value);
+        System.out.println("In table: " + scopes.peek());
 
         return Value.VOID;
     }
+
+    @Override 
+    public Value visitVarForAssign(GrammarParser.VarForAssignContext ctx) {
+        String id = ctx.ID().getText();
+        Value value = this.visit(ctx.expr());
+
+        scopes.peek().put(id, value);
+        System.out.println("In table: " + scopes.peek());
+
+        return value; 
+    }
+	
 
     // readln override
     @Override 
@@ -66,9 +80,9 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         String id = ctx.ID().getText();
         Value a = new Value(io.nextLine());
 
-        globalMem.put(id, a);
+        scopes.peek().put(id, a);
         
-        System.out.println("In table: " + globalMem);
+        System.out.println("In table: " + scopes.peek());
 
         return Value.VOID;
     }
@@ -101,8 +115,57 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     public Value visitStrLine(GrammarParser.StrLineContext ctx) {
         return new Value(ctx.STRING_LITERAL().getText().substring(1, ctx.STRING_LITERAL().getText().length() - 1));
     }
-	
 
+
+    // while loop override
+    @Override 
+    public Value visitWhileLoop(GrammarParser.WhileLoopContext ctx) {
+        HashMap<String, Value> newScope = new HashMap<String, Value>();
+        newScope.putAll(scopes.peek());
+        scopes.push(newScope);
+
+        Value value = this.visit(ctx.expr());
+
+        //INSERT SAVE SCOPE HERE
+
+        while(value.asBoolean()){
+            this.visit(ctx.loopBlock());
+
+            value = this.visit(ctx.expr());
+        }
+
+        AdjustScope();
+
+        return Value.VOID;
+    }
+    
+    
+    // for loop
+    @Override 
+    public Value visitForLoop(GrammarParser.ForLoopContext ctx) {
+        HashMap<String, Value> newScope = new HashMap<String, Value>();
+        newScope.putAll(scopes.peek());
+        scopes.push(newScope);
+
+        Value value = this.visit(ctx.varForAssign());
+        Value compareElement = this.visit(ctx.element());
+        float i = value.asFloat();
+        float iMax = compareElement.asFloat();
+
+        //INSERT SAVE SCOPE HERE
+
+        while(i <= iMax){
+            this.visit(ctx.loopBlock());
+
+            i++;
+        }
+
+        AdjustScope();
+
+        return Value.VOID;
+    }
+	
+	
 
     // if statement override
     @Override 
@@ -265,7 +328,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     @Override 
     public Value visitIdElement(GrammarParser.IdElementContext ctx) { 
         String id = ctx.getText();
-        String value = globalMem.get(id).toString();
+        String value = scopes.peek().get(id).toString();
 
 
 
@@ -292,7 +355,16 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     }
 	
 
-
+    private void AdjustScope(){
+        HashMap<String, Value> currScope = scopes.pop();
+        HashMap<String, Value> oldScope = scopes.peek();
+        for(Map.Entry<String, Value> entry : oldScope.entrySet()){
+            if(currScope.containsKey(entry.getKey())){
+                Value val = currScope.get(entry.getKey());
+                oldScope.put(entry.getKey(), val);
+            }
+        }
+    }
 
 
 

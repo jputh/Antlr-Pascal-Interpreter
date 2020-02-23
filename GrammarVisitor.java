@@ -77,6 +77,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarAssign(GrammarParser.VarAssignContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarParser#varForAssign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarForAssign(GrammarParser.VarForAssignContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarParser#readLn}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -102,6 +108,42 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStrLine(GrammarParser.StrLineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#whileLoop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhileLoop(GrammarParser.WhileLoopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#forLoop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForLoop(GrammarParser.ForLoopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#loopBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopBlock(GrammarParser.LoopBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#loopStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopStatements(GrammarParser.LoopStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#loopStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopStatement(GrammarParser.LoopStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#eval_break}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEval_break(GrammarParser.Eval_breakContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GrammarParser#ifStatement}.
 	 * @param ctx the parse tree

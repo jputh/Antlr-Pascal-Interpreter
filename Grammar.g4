@@ -36,8 +36,7 @@ varDec:
     ID ':' type=(BOOLEAN | REAL) '=' expr ';'                    #initDec
     | ID ':' type=(BOOLEAN | REAL) ';'                           #normDec    
     ;
-        // $varDecs::localMap.put($ID.text, Boolean.toString($bExpr.b));
-        // System.out.println("In table: " + $varDecs::localMap);
+
    
 block:
     //nothing
@@ -49,9 +48,10 @@ statements:
     | statement statements
     ;
 
-//could be conditionals/if-else
 statement: 
     varAssign
+    | whileLoop
+    | forLoop
     | ifStatement
     | readLn
     | writeLn
@@ -61,30 +61,65 @@ varAssign:
     ID ':=' expr ';'
     ;
 
+//assignment recognized only when in a for loop
+varForAssign:
+    ID ':=' expr
+    ;
+
 readLn:
     'readln' LPAREN ID RPAREN ';' 
-            // { if($statement::evaluate){ 
-            //      String a = io.nextLine();
-            //      $varDecs::localMap.put($ID.text, a); 
-            //      //System.out.println("In table: " + $varDecs::localMap);
-            //      } 
-            //  }
     ;
 
 writeLn:
     'writeln' LPAREN ( line DELIM?)+ RPAREN ';'
-    //'writeln' LPAREN ( line { System.out.print($line.s); } ','?)+ RPAREN ';' {System.out.println();}
     ;
 
 //should return string
 line:
     expr                                #exprLine
     | STRING_LITERAL                    #strLine
-    //{ $s = $STRING_LITERAL.text.substring(1, $STRING_LITERAL.text.length()-1); }
+    
     ;
 
+
+
+
+
+whileLoop:
+    WHILE LPAREN? expr RPAREN DO loopBlock
+    ;
+
+forLoop:
+    FOR varForAssign TO element DO loopBlock
+    ;
+
+loopBlock:
+    BEGIN loopStatements END ';'
+    ;
+
+loopStatements:
+    //nothing
+    | loopStatement loopStatements
+    ;
+    
+loopStatement:
+    varDec
+    | statement
+    | eval_break
+    ;
+
+
+eval_break:
+    BREAK
+    ;
+
+
+
+
+
+
 ifStatement:
-    IF condBlock (ELSE IF condBlock)* (ELSE stateBlock)? ';'
+    IF condBlock (ELSE IF condBlock)* (ELSE stateBlock)?
     ;
 
 condBlock:
@@ -92,7 +127,7 @@ condBlock:
     ;
 
 stateBlock:
-    block
+    block ';'
     | statement
     ;
     
@@ -300,6 +335,26 @@ COS:            //cosine function
 
 REAL:
     R E A L
+    ;
+
+FOR:
+    F O R
+    ;
+
+WHILE:
+    W H I L E
+    ;
+
+DO:
+    D O
+    ;
+
+TO:
+    T O
+    ;
+
+BREAK:
+    B R E A K
     ;
 
 IF:
