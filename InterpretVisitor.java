@@ -11,6 +11,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     Scanner io = new Scanner(System.in);
     private HashMap<String, Value> globalMem = new HashMap<String, Value>();
     private Stack<HashMap<String, Value>> scopes = new Stack<HashMap<String, Value>>();
+    private HashMap<String, GrammarParser.FunctionDecContext> functions = new HashMap<String, GrammarParser.FunctionDecContext>();
 
     public static final float SMALL_VALUE = 0.0000001f;
 
@@ -46,13 +47,98 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
             default:
                 value = null;
         }
-        return scopes.peek().put(id, value); 
+        scopes.peek().put(id, value);
+        System.out.println("In table: " + scopes.peek());
+        return Value.VOID;
     }
 
 
-    // Variable assignment override
+    // function declaration override
+    // Used when function is being declared to save location of function body 
     @Override 
-    public Value visitVarAssign(GrammarParser.VarAssignContext ctx) {
+    public Value visitFunctionDec(GrammarParser.FunctionDecContext ctx) {
+        String funcName = ctx.ID().getText();
+
+        //insert function name and location into global hashmap
+        functions.put(funcName, ctx);
+
+        return Value.VOID;
+    }
+    
+
+
+
+    //BIG override function for function calls
+    @Override 
+    public Value visitFunctionCall(GrammarParser.FunctionCallContext ctx) {
+        CreateNewScope();
+
+        //variable holding function body
+        GrammarParser.FunctionDecContext funcCtx = functions.get(this.visit(ctx.func_identifier()).asString());
+
+        //add function name to scope for return variable
+        String funcName = ctx.func_identifier().getText();
+        Value tempVal = null;
+        switch(funcCtx.type.getType()){
+            case GrammarParser.REAL:
+                tempVal = new Value(0.0f);
+            case GrammarParser.BOOLEAN:
+                tempVal = new Value(false);
+            default:
+                tempVal = null;
+        }
+        scopes.peek().put(funcName, tempVal);
+
+        
+
+        //List of expressions in the function call parameters
+        List<GrammarParser.ExprContext> paramValues = ctx.parameters().expr();
+
+        //List of parameter group types in the function declaration
+        List<GrammarParser.ParamGroupContext> paramGroups = funcCtx.formalParameterList().paramGroup();
+
+        int counter = 0;
+        for(GrammarParser.ParamGroupContext paramGroup : paramGroups){
+            List<GrammarParser.IdentifierContext> ids = paramGroup.variableList().identifier();
+
+            for(GrammarParser.IdentifierContext idCtx : ids){
+                String id = this.visit(idCtx).asString();
+                Value val = this.visit(paramValues.get(counter));
+
+                scopes.peek().put(id, val);
+                System.out.println("In table: " + scopes.peek());
+                
+                counter++;
+            }
+        }
+        
+        this.visitChildren(funcCtx);
+
+        Value returnVal = scopes.peek().get(funcName);
+        AdjustScope();
+        return returnVal;
+
+
+    }
+	
+
+
+
+
+
+    // Variable assignment overrides
+    @Override 
+    public Value visitFuncAssignment(GrammarParser.FuncAssignmentContext ctx) {
+        String id = ctx.ID().getText();
+        Value value = this.visit(ctx.functionCall());
+
+        scopes.peek().put(id, value);
+        System.out.println("In table: " + scopes.peek());
+
+        return Value.VOID;
+    }
+	
+	@Override public Value visitExprAssignment(GrammarParser.ExprAssignmentContext ctx) {
         String id = ctx.ID().getText();
         Value value = this.visit(ctx.expr());
 
@@ -61,6 +147,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         return Value.VOID;
     }
+	
 
     @Override 
     public Value visitVarForAssign(GrammarParser.VarForAssignContext ctx) {
@@ -120,9 +207,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     // while loop override
     @Override 
     public Value visitWhileLoop(GrammarParser.WhileLoopContext ctx) {
-        HashMap<String, Value> newScope = new HashMap<String, Value>();
-        newScope.putAll(scopes.peek());
-        scopes.push(newScope);
+        CreateNewScope();
 
         Value value = this.visit(ctx.expr());
 
@@ -143,9 +228,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     // for loop
     @Override 
     public Value visitForLoop(GrammarParser.ForLoopContext ctx) {
-        HashMap<String, Value> newScope = new HashMap<String, Value>();
-        newScope.putAll(scopes.peek());
-        scopes.push(newScope);
+        CreateNewScope();
 
         Value value = this.visit(ctx.varForAssign());
         Value compareElement = this.visit(ctx.element());
@@ -328,6 +411,10 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     @Override 
     public Value visitIdElement(GrammarParser.IdElementContext ctx) { 
         String id = ctx.getText();
+
+        // if(functions.containsKey(id)){
+
+        // }
         String value = scopes.peek().get(id).toString();
 
 
@@ -353,7 +440,29 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     public Value visitRealElement(GrammarParser.RealElementContext ctx) {
         return new Value(Float.valueOf(ctx.getText())); 
     }
+
+
+    //USE FOR FUNCTION CALL
+    @Override 
+    public Value visitFunc_identifier(GrammarParser.Func_identifierContext ctx) {
+        String funcId = ctx.ID().getText();
+        return new Value(funcId);
+    }
+
+    @Override 
+    public Value visitIdentifier(GrammarParser.IdentifierContext ctx) {
+        return new Value(ctx.ID().getText()); 
+    }
+
+
 	
+    //HELPER METHODs that adjusts scope at the end of a block
+    private void CreateNewScope(){
+        HashMap<String, Value> newScope = new HashMap<String, Value>();
+            newScope.putAll(scopes.peek());
+            scopes.push(newScope);
+    }
+
 
     private void AdjustScope(){
         HashMap<String, Value> currScope = scopes.pop();

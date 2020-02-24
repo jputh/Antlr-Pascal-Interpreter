@@ -18,7 +18,7 @@ start:
     program EOF;
 
 program:
-    PROGRAM ID ';' varBlock block '.';
+    PROGRAM ID ';' varBlock functionDecs block '.';
 
 varBlock:
     //nothing
@@ -26,7 +26,7 @@ varBlock:
     ;
 
 //variable declarations
-varDecs locals[ static HashMap<String,String> localMap = new HashMap<String, String>(); ]:
+varDecs:
     //nothing
     | varDec varDecs
     ;
@@ -37,7 +37,63 @@ varDec:
     | ID ':' type=(BOOLEAN | REAL) ';'                           #normDec    
     ;
 
-   
+//function declarations
+functionDecs:
+    //nothing
+    | functionDec functionDecs
+    ;
+
+//function declaration
+functionDec:
+    FUNCTION ID LPAREN (formalParameterList)? RPAREN ':' type=(REAL | BOOLEAN) ';' varBlock block ';'
+    ;
+
+formalParameterList:
+    paramGroup (';' paramGroup)*
+    ;
+
+paramGroup:
+    variableList ':' variableType
+    ;
+
+variableList:
+    identifier (',' identifier)*
+    ;
+
+variableType:
+    REAL
+    | BOOLEAN
+    ;
+
+
+// funcBlock:
+//     BEGIN funcStatements END ';'
+//     ;
+
+// funcStatements:
+//     //nothing
+//     funcStatement funcStatements
+//     ;
+
+// funcStatement:
+//     statement
+//     | //return statement??
+//     ;
+
+functionCall:
+    func_identifier LPAREN parameters RPAREN
+;
+
+// functionCall:
+//     func_identifier LPAREN parameters RPAREN
+// ;
+
+parameters:
+    expr (',' expr)*
+    ;
+
+
+
 block:
     //nothing
     | BEGIN statements END
@@ -57,8 +113,12 @@ statement:
     | writeLn
     ;
 
+
+
+
 varAssign:
-    ID ':=' expr ';'
+    ID ':=' functionCall ';'                            #funcAssignment
+    | ID ':=' expr ';'                                  #exprAssignment
     ;
 
 //assignment recognized only when in a for loop
@@ -162,12 +222,22 @@ expr:
     | element                                               #elementExpr
     ;
 
+func_identifier:
+    ID
+    ;
 
 element:
     LPAREN expr RPAREN                              #parElement
     | ID                                            #idElement
     | (TRUE | FALSE)                                #boolElement
     | NUM                                           #realElement
+    ;
+
+//Might?? cause some issues. Idk though
+
+
+identifier:
+    ID
     ;
 
 
@@ -283,6 +353,10 @@ PROGRAM:
 
 VAR:
     V A R
+    ;
+
+FUNCTION:
+    F U N C T I O N
     ;
 
 TRUE:

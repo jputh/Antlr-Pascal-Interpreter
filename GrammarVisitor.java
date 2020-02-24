@@ -53,6 +53,54 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNormDec(GrammarParser.NormDecContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarParser#functionDecs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionDecs(GrammarParser.FunctionDecsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#functionDec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionDec(GrammarParser.FunctionDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#formalParameterList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFormalParameterList(GrammarParser.FormalParameterListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#paramGroup}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParamGroup(GrammarParser.ParamGroupContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#variableList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableList(GrammarParser.VariableListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#variableType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableType(GrammarParser.VariableTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#functionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionCall(GrammarParser.FunctionCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#parameters}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameters(GrammarParser.ParametersContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarParser#block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -71,11 +119,19 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(GrammarParser.StatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GrammarParser#varAssign}.
+	 * Visit a parse tree produced by the {@code funcAssignment}
+	 * labeled alternative in {@link GrammarParser#varAssign}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVarAssign(GrammarParser.VarAssignContext ctx);
+	T visitFuncAssignment(GrammarParser.FuncAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code exprAssignment}
+	 * labeled alternative in {@link GrammarParser#varAssign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprAssignment(GrammarParser.ExprAssignmentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GrammarParser#varForAssign}.
 	 * @param ctx the parse tree
@@ -233,6 +289,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAndExpr(GrammarParser.AndExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarParser#func_identifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunc_identifier(GrammarParser.Func_identifierContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code parElement}
 	 * labeled alternative in {@link GrammarParser#element}.
 	 * @param ctx the parse tree
@@ -260,4 +322,10 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitRealElement(GrammarParser.RealElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#identifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentifier(GrammarParser.IdentifierContext ctx);
 }
