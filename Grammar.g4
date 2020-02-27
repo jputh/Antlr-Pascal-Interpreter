@@ -18,7 +18,7 @@ start:
     program EOF;
 
 program:
-    PROGRAM ID ';' varBlock functionDecs block '.';
+    PROGRAM identifier ';' varBlock functionDecs block '.';
 
 varBlock:
     //nothing
@@ -37,15 +37,24 @@ varDec:
     | ID ':' type=(BOOLEAN | REAL) ';'                           #normDec    
     ;
 
-//function declarations
+//function or procedure declarations
 functionDecs:
     //nothing
-    | functionDec functionDecs
+    | funcOrProcDec functionDecs
     ;
 
 //function declaration
-functionDec:
+funcOrProcDec:
+    funcDec    
+    | procDec
+    ;
+
+funcDec:
     FUNCTION ID LPAREN (formalParameterList)? RPAREN ':' type=(REAL | BOOLEAN) ';' varBlock block ';'
+    ;
+
+procDec:
+    PROCEDURE ID LPAREN (formalParameterList)? RPAREN ';' varBlock block ';'
     ;
 
 formalParameterList:
@@ -65,31 +74,17 @@ variableType:
     | BOOLEAN
     ;
 
-
-// funcBlock:
-//     BEGIN funcStatements END ';'
-//     ;
-
-// funcStatements:
-//     //nothing
-//     funcStatement funcStatements
-//     ;
-
-// funcStatement:
-//     statement
-//     | //return statement??
-//     ;
-
 functionCall:
     func_identifier LPAREN parameters RPAREN
 ;
 
-// functionCall:
-//     func_identifier LPAREN parameters RPAREN
-// ;
+procedureCall:
+    func_identifier LPAREN parameters RPAREN ';'
+;
 
 parameters:
-    expr (',' expr)*
+    //nothing
+    | expr (',' expr)*
     ;
 
 
@@ -106,13 +101,13 @@ statements:
 
 statement: 
     varAssign
-    | whileLoop
-    | forLoop
+    | procedureCall
+    | loopType
     | ifStatement
+    | caseStatement
     | readLn
     | writeLn
     ;
-
 
 
 
@@ -121,10 +116,6 @@ varAssign:
     | ID ':=' expr ';'                                  #exprAssignment
     ;
 
-//assignment recognized only when in a for loop
-varForAssign:
-    ID ':=' expr
-    ;
 
 readLn:
     'readln' LPAREN ID RPAREN ';' 
@@ -144,6 +135,10 @@ line:
 
 
 
+loopType:
+    whileLoop
+    | forLoop
+    ;
 
 whileLoop:
     WHILE LPAREN? expr RPAREN DO loopBlock
@@ -151,6 +146,10 @@ whileLoop:
 
 forLoop:
     FOR varForAssign TO element DO loopBlock
+    ;
+    
+varForAssign:
+    ID ':=' expr
     ;
 
 loopBlock:
@@ -166,13 +165,16 @@ loopStatement:
     varDec
     | statement
     | eval_break
+    | eval_continue
     ;
-
 
 eval_break:
-    BREAK
+    BREAK ';'
     ;
 
+eval_continue:
+    CONTINUE ';'
+    ;
 
 
 
@@ -191,23 +193,13 @@ stateBlock:
     | statement
     ;
     
-// caseStatement:
-//     CASE LPAREN? b1=bExpr RPAREN? OF 
-//         b2=bExpr ':'{
-//             if($b1.b != $b2.b){
-//                 $statement::evaluate = false;
-//             }
-//         }
-//         statement END ';' { $statement::evaluate = true; }
-//     | CASE LPAREN? b1=bExpr RPAREN? OF 
-//         b2=bExpr ':'{
-//             if($b1.b != $b2.b){
-//                 $statement::evaluate = false;
-//             }
-//         }
-//         BEGIN statements END';' END ';' { $statement::evaluate = true; }
-//     ;
+caseStatement:
+    CASE LPAREN? expr RPAREN? OF (caseBlock)+ END ';'
+    ;
 
+caseBlock:
+    expr ':' statement
+    ;
 
 expr:
     type=(SQRT | LN | EXP | SIN | COS) LPAREN expr RPAREN   #equationExpr
@@ -219,6 +211,7 @@ expr:
     | lEx=expr op=(EQ | NEQ) rEx=expr                       #equalityExpr
     | lEx=expr AND rEx=expr                                 #andExpr
     | lEx=expr OR rEx=expr                                  #orExpr
+    | functionCall                                          #functCallExpr
     | element                                               #elementExpr
     ;
 
@@ -359,6 +352,10 @@ FUNCTION:
     F U N C T I O N
     ;
 
+PROCEDURE:
+    P R O C E D U R E
+    ;
+
 TRUE:
     T R U E
     ;
@@ -429,6 +426,10 @@ TO:
 
 BREAK:
     B R E A K
+    ;
+
+CONTINUE:
+    C O N T I N U E
     ;
 
 IF:

@@ -18,7 +18,7 @@ if(a and b) then
 begin
     c := 20;
     d := d / 5;
-end
+end;
 else
 begin
     c := 2;

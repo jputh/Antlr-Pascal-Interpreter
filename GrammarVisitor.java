@@ -59,11 +59,23 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionDecs(GrammarParser.FunctionDecsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GrammarParser#functionDec}.
+	 * Visit a parse tree produced by {@link GrammarParser#funcOrProcDec}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionDec(GrammarParser.FunctionDecContext ctx);
+	T visitFuncOrProcDec(GrammarParser.FuncOrProcDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#funcDec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncDec(GrammarParser.FuncDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#procDec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcDec(GrammarParser.ProcDecContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GrammarParser#formalParameterList}.
 	 * @param ctx the parse tree
@@ -94,6 +106,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunctionCall(GrammarParser.FunctionCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#procedureCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcedureCall(GrammarParser.ProcedureCallContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GrammarParser#parameters}.
 	 * @param ctx the parse tree
@@ -133,12 +151,6 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExprAssignment(GrammarParser.ExprAssignmentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GrammarParser#varForAssign}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVarForAssign(GrammarParser.VarForAssignContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link GrammarParser#readLn}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -165,6 +177,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStrLine(GrammarParser.StrLineContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarParser#loopType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopType(GrammarParser.LoopTypeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarParser#whileLoop}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -176,6 +194,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitForLoop(GrammarParser.ForLoopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#varForAssign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarForAssign(GrammarParser.VarForAssignContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GrammarParser#loopBlock}.
 	 * @param ctx the parse tree
@@ -201,6 +225,12 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEval_break(GrammarParser.Eval_breakContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarParser#eval_continue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEval_continue(GrammarParser.Eval_continueContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarParser#ifStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -218,6 +248,18 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStateBlock(GrammarParser.StateBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#caseStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCaseStatement(GrammarParser.CaseStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarParser#caseBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCaseBlock(GrammarParser.CaseBlockContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code unaryExpr}
 	 * labeled alternative in {@link GrammarParser#expr}.
@@ -274,6 +316,13 @@ public interface GrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEqualityExpr(GrammarParser.EqualityExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code functCallExpr}
+	 * labeled alternative in {@link GrammarParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctCallExpr(GrammarParser.FunctCallExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code compareExpr}
 	 * labeled alternative in {@link GrammarParser#expr}.

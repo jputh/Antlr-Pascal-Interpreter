@@ -1,5 +1,5 @@
 {This tests case statements with a single case, with one or multiple lines in the execution block. The variable x should equal 40 at the end of the program}
-{Output: 'num = 40.0'}
+{Output: 'num = 200.0'}
 
 program checkCase;
 var
@@ -16,11 +16,7 @@ begin
     passed := false;
     
     case (passed) of
-      false : begin 
-                num := num + 10;
-                num := num + 10;
-            end;
-                
+      false : num := num * 10;         
     end; 
 
     writeln('num = ', num);

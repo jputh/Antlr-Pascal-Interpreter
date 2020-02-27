@@ -1,6 +1,7 @@
 {Tests function call!}
+{output: 'Max value is : 200.0'}
 
-program exFunction;
+program exFunction
 var
    a : real;
    b : real;

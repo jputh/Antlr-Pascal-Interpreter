@@ -11,9 +11,13 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     Scanner io = new Scanner(System.in);
     private HashMap<String, Value> globalMem = new HashMap<String, Value>();
     private Stack<HashMap<String, Value>> scopes = new Stack<HashMap<String, Value>>();
-    private HashMap<String, GrammarParser.FunctionDecContext> functions = new HashMap<String, GrammarParser.FunctionDecContext>();
+    private HashMap<String, GrammarParser.FuncDecContext> functions = new HashMap<String, GrammarParser.FuncDecContext>();
+    private HashMap<String, GrammarParser.ProcDecContext> procedures = new HashMap<String, GrammarParser.ProcDecContext>();
+    private Stack<GrammarParser.LoopTypeContext> loopTracker = new Stack<GrammarParser.LoopTypeContext>();
 
     public static final float SMALL_VALUE = 0.0000001f;
+    private boolean evalLoop = true;
+    private boolean evalLoopBlock = true;
 
     @Override 
     public Value visitStart(GrammarParser.StartContext ctx) {
@@ -22,7 +26,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         return visitChildren(ctx); 
     }
 
-	
 
     // Variable declaration overrides
     @Override 
@@ -32,7 +35,8 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         return scopes.peek().put(id, value);
     }
-	
+    
+    
     @Override 
     public Value visitNormDec(GrammarParser.NormDecContext ctx) { 
         String id = ctx.ID().getText();
@@ -56,7 +60,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     // function declaration override
     // Used when function is being declared to save location of function body 
     @Override 
-    public Value visitFunctionDec(GrammarParser.FunctionDecContext ctx) {
+    public Value visitFuncDec(GrammarParser.FuncDecContext ctx) {
         String funcName = ctx.ID().getText();
 
         //insert function name and location into global hashmap
@@ -64,17 +68,27 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         return Value.VOID;
     }
+
+    @Override 
+    public Value visitProcDec(GrammarParser.ProcDecContext ctx) {
+        String procName = ctx.ID().getText();
+
+        //insert function name and location into global hashmap
+        procedures.put(procName, ctx);
+
+        return Value.VOID;
+    }
     
 
 
 
-    //BIG override function for function calls
+    //BIG override functions for function and procedure calls
     @Override 
     public Value visitFunctionCall(GrammarParser.FunctionCallContext ctx) {
         CreateNewScope();
 
         //variable holding function body
-        GrammarParser.FunctionDecContext funcCtx = functions.get(this.visit(ctx.func_identifier()).asString());
+        GrammarParser.FuncDecContext funcCtx = functions.get(this.visit(ctx.func_identifier()).asString());
 
         //add function name to scope for return variable
         String funcName = ctx.func_identifier().getText();
@@ -89,7 +103,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         }
         scopes.peek().put(funcName, tempVal);
 
-        
 
         //List of expressions in the function call parameters
         List<GrammarParser.ExprContext> paramValues = ctx.parameters().expr();
@@ -117,12 +130,41 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         Value returnVal = scopes.peek().get(funcName);
         AdjustScope();
         return returnVal;
-
-
     }
 	
+    @Override 
+    public Value visitProcedureCall(GrammarParser.ProcedureCallContext ctx) {
+        CreateNewScope();
+
+        //variable holding function body
+        GrammarParser.ProcDecContext procCtx = procedures.get(this.visit(ctx.func_identifier()).asString());
 
 
+        //List of expressions in the function call parameters
+        List<GrammarParser.ExprContext> paramValues = ctx.parameters().expr();
+
+        //List of parameter group types in the function declaration
+        List<GrammarParser.ParamGroupContext> paramGroups = procCtx.formalParameterList().paramGroup();
+
+        int counter = 0;
+        for(GrammarParser.ParamGroupContext paramGroup : paramGroups){
+            List<GrammarParser.IdentifierContext> ids = paramGroup.variableList().identifier();
+
+            for(GrammarParser.IdentifierContext idCtx : ids){
+                String id = this.visit(idCtx).asString();
+                Value val = this.visit(paramValues.get(counter));
+
+                scopes.peek().put(id, val);
+                System.out.println("In table: " + scopes.peek());
+                
+                counter++;
+            }
+        }
+        
+        this.visitChildren(procCtx);
+        AdjustScope();
+        return Value.VOID;
+    }
 
 
 
@@ -147,17 +189,15 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         return Value.VOID;
     }
-	
 
-    @Override 
-    public Value visitVarForAssign(GrammarParser.VarForAssignContext ctx) {
+    @Override public Value visitVarForAssign(GrammarParser.VarForAssignContext ctx) {
         String id = ctx.ID().getText();
         Value value = this.visit(ctx.expr());
 
         scopes.peek().put(id, value);
         System.out.println("In table: " + scopes.peek());
 
-        return value; 
+        return value;
     }
 	
 
@@ -203,6 +243,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         return new Value(ctx.STRING_LITERAL().getText().substring(1, ctx.STRING_LITERAL().getText().length() - 1));
     }
 
+	
 
     // while loop override
     @Override 
@@ -214,7 +255,18 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         //INSERT SAVE SCOPE HERE
 
         while(value.asBoolean()){
-            this.visit(ctx.loopBlock());
+
+            if(!evalLoop){
+                evalLoop = !evalLoop;
+                break;
+            }
+
+            if(evalLoopBlock){
+                this.visit(ctx.loopBlock());
+            }
+            else{
+                evalLoopBlock = !evalLoopBlock;
+            }
 
             value = this.visit(ctx.expr());
         }
@@ -238,7 +290,18 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         //INSERT SAVE SCOPE HERE
 
         while(i <= iMax){
-            this.visit(ctx.loopBlock());
+
+            if(!evalLoop){
+                evalLoop = !evalLoop;
+                break;
+            }
+
+            if(evalLoopBlock){
+                this.visit(ctx.loopBlock());
+            }
+            else{
+                evalLoopBlock = !evalLoopBlock;
+            }
 
             i++;
         }
@@ -247,6 +310,21 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         return Value.VOID;
     }
+
+    @Override 
+    public Value visitEval_break(GrammarParser.Eval_breakContext ctx) {
+        evalLoop = false;
+        
+        return Value.VOID;
+    }
+
+    @Override 
+    public Value visitEval_continue(GrammarParser.Eval_continueContext ctx) {
+        evalLoopBlock = false;
+
+        return Value.VOID;
+    }
+	
 	
 	
 
@@ -270,6 +348,22 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         if(!completed && ctx.stateBlock() != null){
             this.visit(ctx.stateBlock());
+        }
+
+        return Value.VOID;
+    }
+
+    @Override public Value visitCaseStatement(GrammarParser.CaseStatementContext ctx) {
+        List<GrammarParser.CaseBlockContext> cases = ctx.caseBlock();
+
+        for(GrammarParser.CaseBlockContext c : cases){
+            Value b1 = this.visit(ctx.expr());
+            Value b2 = this.visit(c.expr());
+
+            if(b1.asBoolean() == b1.asBoolean()){
+                this.visit(c.statement());
+                return Value.VOID;
+            }
         }
 
         return Value.VOID;
@@ -330,11 +424,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     public Value visitAddExpr(GrammarParser.AddExprContext ctx){
         Value left = this.visit(ctx.lEx);
         Value right = this.visit(ctx.rEx);
-
-        // System.out.println(ctx.hashCode());
-        // System.out.println(ctx.getRuleIndex());
-        // System.out.println(ctx.toString());
-        // System.out.println(ctx.getParent());
 
         switch(ctx.op.getType()){
             case GrammarParser.ADD:
@@ -417,8 +506,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         // }
         String value = scopes.peek().get(id).toString();
 
-
-
         try{
             return new Value(Float.parseFloat(value));
         }
@@ -474,6 +561,8 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
             }
         }
     }
+
+    
 
 
 
