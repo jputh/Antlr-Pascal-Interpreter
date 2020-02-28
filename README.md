@@ -8,7 +8,7 @@ Date: 2-28-2020
 
 To run the tests in the 'test' folder, do:
 
-for all tests input0.pas to input18.pas,
+for all tests input0.pas to input18.pas, run:
 ```bash
 java Main test/input#.pas
 ```
