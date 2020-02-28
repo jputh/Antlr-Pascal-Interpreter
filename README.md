@@ -1,6 +1,7 @@
 # README
 
 Project by: Jason Puthusseril
+
 Date: 2-28-2020
 
 ## How to run the code
@@ -24,7 +25,7 @@ The following features have been implemented, along with all features from Proje
 
 1. while-do and for-do loops 
     * see input10.pas and input11.pas
-    * for nested loops see input18.pas
+    * for nested loops, see input18.pas
 2. break and continue keywords
     * see input15.pas and input16.pas
 3. user-defined functions and procedures
@@ -36,7 +37,7 @@ The following features have been implemented, along with all features from Proje
 ## Bonuses
 
 I also attempted the second bonus, formal parameters passing with proper scoping
-    * see input14.pas, input17.pas, and input18.pas, which all use formal parameter passing
+* see input14.pas, input17.pas, and input18.pas, which all use formal parameter passing
 
 ## Assumptions
 
