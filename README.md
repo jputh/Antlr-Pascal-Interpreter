@@ -6,6 +6,13 @@ Date: 2-28-2020
 
 ## How to run the code
 
+To generate and compile the java code, do:
+```bash
+antlr4 Grammar.g4 -visitor
+javac Main.java Grammar*.java InterpretVisitor.java Value.java
+```
+
+
 To run the tests in the 'test' folder, do:
 
 for all tests input0.pas to input18.pas, run:
@@ -13,11 +20,7 @@ for all tests input0.pas to input18.pas, run:
 java Main test/input#.pas
 ```
 
-To recompile the code, do:
-```bash
-antlr4 Grammar.g4 -visitor
-javac Main.java Grammar*.java InterpretVisitor.java
-```
+
 
 ## Features
 

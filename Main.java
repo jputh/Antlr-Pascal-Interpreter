@@ -12,7 +12,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("This is a test");
 
         String inputFile = null;
         if ( args.length>0 ) inputFile = args[0];

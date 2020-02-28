@@ -22,7 +22,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
     @Override 
     public Value visitStart(GrammarParser.StartContext ctx) {
         scopes.push(globalMem);
-        System.out.println(ctx.program());
         return visitChildren(ctx); 
     }
 
@@ -52,7 +51,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
                 value = null;
         }
         scopes.peek().put(id, value);
-        System.out.println("In table: " + scopes.peek());
+        //System.out.println("In table: " + scopes.peek());
         return Value.VOID;
     }
 
@@ -119,7 +118,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
                 Value val = this.visit(paramValues.get(counter));
 
                 scopes.peek().put(id, val);
-                System.out.println("In table: " + scopes.peek());
+                //System.out.println("In table: " + scopes.peek());
                 
                 counter++;
             }
@@ -155,7 +154,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
                 Value val = this.visit(paramValues.get(counter));
 
                 scopes.peek().put(id, val);
-                System.out.println("In table: " + scopes.peek());
+                //System.out.println("In table: " + scopes.peek());
                 
                 counter++;
             }
@@ -175,7 +174,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         Value value = this.visit(ctx.functionCall());
 
         scopes.peek().put(id, value);
-        System.out.println("In table: " + scopes.peek());
+        //System.out.println("In table: " + scopes.peek());
 
         return Value.VOID;
     }
@@ -185,7 +184,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         Value value = this.visit(ctx.expr());
 
         scopes.peek().put(id, value);
-        System.out.println("In table: " + scopes.peek());
+        //System.out.println("In table: " + scopes.peek());
 
         return Value.VOID;
     }
@@ -195,7 +194,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         Value value = this.visit(ctx.expr());
 
         scopes.peek().put(id, value);
-        System.out.println("In table: " + scopes.peek());
+        //System.out.println("In table: " + scopes.peek());
 
         return value;
     }
@@ -209,7 +208,7 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
 
         scopes.peek().put(id, a);
         
-        System.out.println("In table: " + scopes.peek());
+        //System.out.println("In table: " + scopes.peek());
 
         return Value.VOID;
     }
@@ -512,10 +511,6 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
         catch(Exception e){
             return new Value(Boolean.parseBoolean(value));
         }
-        // if(value == null) {
-        //     throw new RuntimeException("no such variable: " + id);
-        // }
-        //return value;
     }
 	
     @Override 
@@ -561,10 +556,5 @@ public class InterpretVisitor extends GrammarBaseVisitor<Value>{
             }
         }
     }
-
-    
-
-
-
 
 }

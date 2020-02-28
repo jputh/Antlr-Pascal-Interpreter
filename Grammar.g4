@@ -107,6 +107,8 @@ statement:
     | caseStatement
     | readLn
     | writeLn
+    | eval_break
+    | eval_continue
     ;
 
 
